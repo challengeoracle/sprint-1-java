@@ -1,0 +1,36 @@
+server:
+  port: ${SERVER_PORT:8000}
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: medix
+
+  # Configuração do Banco de Dados em Memória H2
+  datasource:
+    url: jdbc:h2:mem:medixdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  # Habilita o console do H2 para visualização no navegador
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Configurações do JPA e Hibernate para H2
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop # Cria o schema ao iniciar e apaga ao finalizar
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true # Formata o SQL no console para facilitar a leitura
+
+  # Habilita o reinício automático da aplicação durante o desenvolvimento
+  devtools:
+    restart:
+      enabled: true

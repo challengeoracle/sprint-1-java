@@ -1,0 +1,23 @@
+// model/Colaborador.java
+package br.com.fiap.medix_api.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "TB_MEDI_COLABORADOR")
+@PrimaryKeyJoinColumn(name = "id_usuario") // <-- Diz que o ID de Colaborador é o mesmo de Usuário
+@Data
+@SuperBuilder
+public class Colaborador extends Usuario { // Herda de usuário
+
+    @ManyToOne
+    @JoinColumn(name = "id_unidade_saude", nullable = false)
+    private UnidadeSaude unidadeSaude;
+
+    @Column(name = "ds_cargo", nullable = false, length = 50)
+    private String cargo;
+}
