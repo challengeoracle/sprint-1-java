@@ -1,0 +1,157 @@
+{
+	"info": {
+		"_postman_id": "12acde31-c9e8-4b69-b043-6b321a60d90e",
+		"name": "Sprint 01 - MEDIX",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40001582"
+	},
+	"item": [
+		{
+			"name": "criar paciente",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nome\": \"Ana Beatriz Costa\",\r\n    \"email\": \"ana.costa@email.com\",\r\n    \"senha\": \"senhaSegura123\",\r\n    \"cpf\": \"11122233344\",\r\n    \"dataNascimento\": \"1995-08-20\",\r\n    \"numeroConvenio\": \"GOLD12345\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/pacientes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"pacientes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listar pacientes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/pacientes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"pacientes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscar paciente por id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/pacientes/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"pacientes",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizar paciente",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nome\": \"Carla Novaes Santos\",\r\n    \"email\": \"carla.santos@email.com\",\r\n    \"numeroConvenio\": \"PL54321\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/pacientes/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"pacientes",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletar paciente",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/pacientes/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"pacientes",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscar pacientes deletados",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/pacientes?status=deletados",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"pacientes"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "deletados"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

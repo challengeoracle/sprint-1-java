@@ -1,17 +1,17 @@
+// dto/AtualizacaoPacienteDto.java
 package br.com.fiap.medix_api.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class AtualizacaoPacienteDto {
     private String nome;
+
+    @Email(message = "Formato de e-mail inválido.")
     private String email;
+
     private LocalDate dataNascimento;
     private String numeroConvenio;
 }

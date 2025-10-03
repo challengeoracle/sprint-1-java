@@ -2,20 +2,19 @@
 package br.com.fiap.medix_api.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-
 import java.time.LocalDate;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "TB_MEDI_PACIENTE")
-@PrimaryKeyJoinColumn(name = "id_usuario") // <-- Diz que o ID de Paciente é o mesmo de Usuário
+@PrimaryKeyJoinColumn(name = "id_usuario")
 @Data
 @SuperBuilder
-public class Paciente extends Usuario { // Herda de usuário
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class Paciente extends Usuario {
     @Column(name = "dt_nascimento")
     private LocalDate dataNascimento;
 

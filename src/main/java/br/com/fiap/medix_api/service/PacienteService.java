@@ -1,4 +1,3 @@
-// service/PacienteService.java
 package br.com.fiap.medix_api.service;
 
 import br.com.fiap.medix_api.dto.AtualizacaoPacienteDto;
@@ -6,17 +5,18 @@ import br.com.fiap.medix_api.dto.CadastroPacienteDto;
 import br.com.fiap.medix_api.model.Paciente;
 import br.com.fiap.medix_api.repository.PacienteRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class PacienteService {
 
+    @Autowired
     private PacienteRepository pacienteRepository;
 
-    // CREATE
+    @Transactional // A transação garante que o save será confirmado (commit) no banco
     public Paciente criar(CadastroPacienteDto cadastroDto) {
         Paciente paciente = Paciente.builder()
                 .nome(cadastroDto.getNome())
@@ -30,38 +30,44 @@ public class PacienteService {
         return pacienteRepository.save(paciente);
     }
 
-    // READ (Listar Todos Ativos)
-    public List<Paciente> listarTodos() {
+    public List<Paciente> listar(String status) {
+        if ("deletados".equalsIgnoreCase(status)) {
+            // Se o parâmetro for "deletados", busca os deletados (deleted = 1)
+            return pacienteRepository.findAllByDeletedIs(1);
+        }
+        // Por padrão, ou se o parâmetro for qualquer outra coisa, busca os ativos (deleted = 0)
         return pacienteRepository.findAllByDeletedIs(0);
     }
 
-    // READ (Buscar por ID Ativo)
     public Paciente buscarPorId(Long id) {
         return pacienteRepository.findByIdAndDeletedIs(id, 0)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado ou inativo com o ID: " + id));
     }
 
-    // UPDATE
+    @Transactional
     public Paciente atualizar(Long id, AtualizacaoPacienteDto atualizacaoDto) {
-        // Reutiliza a busca para garantir que o paciente exista e está ativo
         Paciente paciente = this.buscarPorId(id);
 
-        // Atualiza os campos do usuário herdado
-        paciente.setNome(atualizacaoDto.getNome());
-        paciente.setEmail(atualizacaoDto.getEmail());
+        if (atualizacaoDto.getNome() != null) {
+            paciente.setNome(atualizacaoDto.getNome());
+        }
+        if (atualizacaoDto.getEmail() != null) {
+            paciente.setEmail(atualizacaoDto.getEmail());
+        }
+        if (atualizacaoDto.getDataNascimento() != null) {
+            paciente.setDataNascimento(atualizacaoDto.getDataNascimento());
+        }
+        if (atualizacaoDto.getNumeroConvenio() != null) {
+            paciente.setNumeroConvenio(atualizacaoDto.getNumeroConvenio());
+        }
 
-        // Atualiza os campos específicos do paciente
-        paciente.setDataNascimento(atualizacaoDto.getDataNascimento());
-        paciente.setNumeroConvenio(atualizacaoDto.getNumeroConvenio());
-
-        // Salva as alterações
         return pacienteRepository.save(paciente);
     }
 
-    // DELETE (Lógico)
+    @Transactional
     public void excluir(Long id) {
         Paciente paciente = this.buscarPorId(id);
-        paciente.setDeleted(1); // Seta a flag para 1 (deletado)
+        paciente.setDeleted(1);
         pacienteRepository.save(paciente);
     }
 }

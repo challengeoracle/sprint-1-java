@@ -5,52 +5,54 @@ import br.com.fiap.medix_api.dto.AtualizacaoColaboradorDto;
 import br.com.fiap.medix_api.dto.CadastroColaboradorDto;
 import br.com.fiap.medix_api.model.Colaborador;
 import br.com.fiap.medix_api.service.ColaboradorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/colaboradores") // Define o caminho base para todos os endpoints
+@RequestMapping("/colaboradores")
 public class ColaboradorController {
 
     @Autowired
     private ColaboradorService colaboradorService;
 
-    // CREATE (POST /colaboradores)
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Transactional
-    public Colaborador criar(@RequestBody CadastroColaboradorDto colaboradorDto) {
-        return colaboradorService.criar(colaboradorDto);
+    public ResponseEntity<Colaborador> criar(@RequestBody @Valid CadastroColaboradorDto colaboradorDto, UriComponentsBuilder uriBuilder) {
+        Colaborador colaborador = colaboradorService.criar(colaboradorDto);
+        URI uri = uriBuilder.path("/colaboradores/{id}").buildAndExpand(colaborador.getId()).toUri();
+        return ResponseEntity.created(uri).body(colaborador);
     }
 
-    // READ (GET /colaboradores)
     @GetMapping
-    public List<Colaborador> listar() {
-        return colaboradorService.listarTodos();
+    public ResponseEntity<List<Colaborador>> listar() {
+        List<Colaborador> colaboradores = colaboradorService.listarTodos();
+        return ResponseEntity.ok(colaboradores);
     }
 
-    // READ (GET /colaboradores/{id})
     @GetMapping("/{id}")
-    public Colaborador buscar(@PathVariable Long id) {
-        return colaboradorService.buscarPorId(id);
+    public ResponseEntity<Colaborador> buscar(@PathVariable Long id) {
+        Colaborador colaborador = colaboradorService.buscarPorId(id);
+        return ResponseEntity.ok(colaborador);
     }
 
-    // UPDATE (PUT /colaboradores/{id})
     @PutMapping("/{id}")
     @Transactional
-    public Colaborador atualizar(@PathVariable Long id, @RequestBody AtualizacaoColaboradorDto colaboradorDto) {
-        return colaboradorService.atualizar(id, colaboradorDto);
+    public ResponseEntity<Colaborador> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoColaboradorDto colaboradorDto) {
+        Colaborador colaboradorAtualizado = colaboradorService.atualizar(id, colaboradorDto);
+        return ResponseEntity.ok(colaboradorAtualizado);
     }
 
-    // DELETE (DELETE /colaboradores/{id})
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    public void excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
         colaboradorService.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }
