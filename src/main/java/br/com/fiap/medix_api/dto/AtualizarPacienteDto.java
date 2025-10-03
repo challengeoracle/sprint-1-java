@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class AtualizacaoPacienteDto {
+public class AtualizarPacienteDto {
     private String nome;
 
     @Email(message = "Formato de e-mail inválido.")

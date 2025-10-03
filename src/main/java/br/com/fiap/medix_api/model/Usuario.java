@@ -1,4 +1,3 @@
-// model/Usuario.java
 package br.com.fiap.medix_api.model;
 
 import jakarta.persistence.*;
@@ -17,12 +16,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
     private Long id;
 
-    // CORREÇÃO CRÍTICA: Inicializa o valor padrão
+    // Deleted serve pra deleção lógica, já inicia como 0, que é = false
     @Column(name = "deleted")
     private Integer deleted = 0;
 
@@ -45,7 +45,7 @@ public class Usuario {
     @Column(name = "tp_usuario")
     private String tipoUsuario;
 
-    // CORREÇÃO CRÍTICA: Garante que o valor padrão seja setado antes de salvar
+    // Isso aqui garante que o valor padrão seja setado antes de salvar
     @PrePersist
     public void prePersist() {
         if (deleted == null) {

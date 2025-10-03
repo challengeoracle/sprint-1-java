@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AtualizacaoColaboradorDto {
+public class AtualizarColaboradorDto {
+
     // Apenas os dados que podem ser atualizados
     private String nome;
     private String email;

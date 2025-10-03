@@ -13,8 +13,14 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public List<Usuario> listarTodos() {
-        return usuarioRepository.findAll(); // Ajuste se precisar de filtro de 'deleted'
+    public List<Usuario> listar(String status) {
+        if ("deletados".equalsIgnoreCase(status)) {
+            // Se o parâmetro for "deletados", busca os deletados (deleted = 1)
+            // http://localhost:8080/api/pacientes?status=deletados
+            return usuarioRepository.findAllByDeletedIs(1);
+        }
+        // Por padrão, ou se o parâmetro for qualquer outra coisa, busca os ativos (deleted = 0)
+        return usuarioRepository.findAllByDeletedIs(0);
     }
 
     public Usuario buscarPorId(Long id) {

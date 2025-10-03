@@ -1,8 +1,7 @@
-// service/ColaboradorService.java
 package br.com.fiap.medix_api.service;
 
-import br.com.fiap.medix_api.dto.AtualizacaoColaboradorDto;
-import br.com.fiap.medix_api.dto.CadastroColaboradorDto;
+import br.com.fiap.medix_api.dto.AtualizarColaboradorDto;
+import br.com.fiap.medix_api.dto.CadastrarColaboradorDto;
 import br.com.fiap.medix_api.model.Colaborador;
 import br.com.fiap.medix_api.model.UnidadeSaude;
 import br.com.fiap.medix_api.repository.ColaboradorRepository;
@@ -10,6 +9,7 @@ import br.com.fiap.medix_api.repository.UnidadeSaudeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -22,11 +22,11 @@ public class ColaboradorService {
     private UnidadeSaudeRepository unidadeSaudeRepository;
 
     // CREATE
-    public Colaborador criar(CadastroColaboradorDto cadastroDto) {
+    @Transactional
+    public Colaborador criar(CadastrarColaboradorDto cadastroDto) {
         UnidadeSaude unidade = unidadeSaudeRepository.findById(cadastroDto.getIdUnidadeSaude())
                 .orElseThrow(() -> new EntityNotFoundException("Unidade de Saúde não encontrada!"));
 
-        // Conversão para a entidade
         Colaborador colaborador = Colaborador.builder()
                 .nome(cadastroDto.getNome())
                 .email(cadastroDto.getEmail())
@@ -37,11 +37,14 @@ public class ColaboradorService {
                 .cargo(cadastroDto.getCargo())
                 .build();
 
-        return colaboradorRepository.save(colaborador); // CORRIGIDO: movido para dentro do método
+        return colaboradorRepository.save(colaborador);
     }
 
-    // READ (Listar Todos Ativos)
-    public List<Colaborador> listarTodos() {
+    // READ (Listar com filtro de status)
+    public List<Colaborador> listar(String status) {
+        if ("deletados".equalsIgnoreCase(status)) {
+            return colaboradorRepository.findAllByDeletedIs(1);
+        }
         return colaboradorRepository.findAllByDeletedIs(0);
     }
 
@@ -51,21 +54,26 @@ public class ColaboradorService {
                 .orElseThrow(() -> new EntityNotFoundException("Colaborador não encontrado ou inativo com o ID: " + id));
     }
 
-    // UPDATE
-    public Colaborador atualizar(Long id, AtualizacaoColaboradorDto atualizacaoDto) {
+    // UPDATE (Com lógica de atualização parcial)
+    @Transactional
+    public Colaborador atualizar(Long id, AtualizarColaboradorDto atualizacaoDto) {
         Colaborador colaborador = this.buscarPorId(id);
 
-        // Atualiza os campos do usuário herdado
-        colaborador.setNome(atualizacaoDto.getNome());
-        colaborador.setEmail(atualizacaoDto.getEmail());
-
-        // Atualiza os campos específicos do colaborador
-        colaborador.setCargo(atualizacaoDto.getCargo());
+        if (atualizacaoDto.getNome() != null) {
+            colaborador.setNome(atualizacaoDto.getNome());
+        }
+        if (atualizacaoDto.getEmail() != null) {
+            colaborador.setEmail(atualizacaoDto.getEmail());
+        }
+        if (atualizacaoDto.getCargo() != null) {
+            colaborador.setCargo(atualizacaoDto.getCargo());
+        }
 
         return colaboradorRepository.save(colaborador);
     }
 
     // DELETE (Lógico)
+    @Transactional
     public void excluir(Long id) {
         Colaborador colaborador = this.buscarPorId(id);
         colaborador.setDeleted(1);

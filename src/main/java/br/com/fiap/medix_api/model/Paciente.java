@@ -1,4 +1,3 @@
-// model/Paciente.java
 package br.com.fiap.medix_api.model;
 
 import jakarta.persistence.*;
@@ -15,6 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Paciente extends Usuario {
+
     @Column(name = "dt_nascimento")
     private LocalDate dataNascimento;
 

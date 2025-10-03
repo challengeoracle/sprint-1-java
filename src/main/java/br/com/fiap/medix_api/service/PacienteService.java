@@ -1,7 +1,7 @@
 package br.com.fiap.medix_api.service;
 
-import br.com.fiap.medix_api.dto.AtualizacaoPacienteDto;
-import br.com.fiap.medix_api.dto.CadastroPacienteDto;
+import br.com.fiap.medix_api.dto.AtualizarPacienteDto;
+import br.com.fiap.medix_api.dto.CadastrarPacienteDto;
 import br.com.fiap.medix_api.model.Paciente;
 import br.com.fiap.medix_api.repository.PacienteRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,7 +17,7 @@ public class PacienteService {
     private PacienteRepository pacienteRepository;
 
     @Transactional // A transação garante que o save será confirmado (commit) no banco
-    public Paciente criar(CadastroPacienteDto cadastroDto) {
+    public Paciente criar(CadastrarPacienteDto cadastroDto) {
         Paciente paciente = Paciente.builder()
                 .nome(cadastroDto.getNome())
                 .email(cadastroDto.getEmail())
@@ -33,6 +33,7 @@ public class PacienteService {
     public List<Paciente> listar(String status) {
         if ("deletados".equalsIgnoreCase(status)) {
             // Se o parâmetro for "deletados", busca os deletados (deleted = 1)
+            // http://localhost:8080/api/pacientes?status=deletados
             return pacienteRepository.findAllByDeletedIs(1);
         }
         // Por padrão, ou se o parâmetro for qualquer outra coisa, busca os ativos (deleted = 0)
@@ -45,7 +46,9 @@ public class PacienteService {
     }
 
     @Transactional
-    public Paciente atualizar(Long id, AtualizacaoPacienteDto atualizacaoDto) {
+    public Paciente atualizar(Long id, AtualizarPacienteDto atualizacaoDto) {
+
+        // Verificando se o paciente existe
         Paciente paciente = this.buscarPorId(id);
 
         if (atualizacaoDto.getNome() != null) {

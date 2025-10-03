@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Colaborador extends Usuario {
+
     @ManyToOne
     @JoinColumn(name = "id_unidade_saude", nullable = false)
     private UnidadeSaude unidadeSaude;

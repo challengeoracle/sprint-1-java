@@ -16,8 +16,8 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public List<Usuario> listar() {
-        return usuarioService.listarTodos();
+    public List<Usuario> listar(@RequestParam(required = false) String status) {
+        return usuarioService.listar(status);
     }
 
     @GetMapping("/{id}")

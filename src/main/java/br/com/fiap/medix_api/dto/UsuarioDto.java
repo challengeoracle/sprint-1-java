@@ -1,4 +1,3 @@
-// dto/UsuarioDto.java
 package br.com.fiap.medix_api.dto;
 
 import jakarta.validation.constraints.Email;
