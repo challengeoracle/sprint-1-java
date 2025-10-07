@@ -1,0 +1,790 @@
+{
+	"info": {
+		"_postman_id": "d56012b3-afef-49d6-ba7e-cabf0e0b2d9f",
+		"name": "SPRINT 01 - MEDIX",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40001582"
+	},
+	"item": [
+		{
+			"name": "AUTH",
+			"item": [
+				{
+					"name": "fazer login + salvar auth token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Analisa a resposta JSON\r",
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"// Verifica se a resposta contém o token e o salva na variável de ambiente\r",
+									"if (jsonData.token) {\r",
+									"    // pm.environment.set(variável, valor)\r",
+									"    pm.environment.set(\"jwt_token\", jsonData.token);\r",
+									"    console.log(\"Token salvo: \" + pm.environment.get(\"jwt_token\"));\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@medix.com\",\r\n    \"senha\": \"senhaSegura123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PÚBLICO",
+			"item": [
+				{
+					"name": "cadastrar paciente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Analisa a resposta JSON",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Verifica se o ID do paciente existe na resposta e o salva na variável de ambiente",
+									"if (jsonData.id) {",
+									"    // pm.environment.set(variável, valor)",
+									"    pm.environment.set(\"id_paciente\", jsonData.id);",
+									"    console.log(\"ID do paciente salvo: \" + pm.environment.get(\"id_paciente\"));",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Maria de Souza\",\n    \"email\": \"maria.souza@email.com\",\n    \"senha\": \"senha12345\",\n    \"cpf\": \"11122233344\",\n    \"dataNascimento\": \"1990-05-15\",\n    \"tipoSanguineo\": \"A_POSITIVO\",\n    \"genero\": \"FEMININO\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/pacientes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"pacientes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cadastrar colaborador",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Analisa a resposta JSON",
+									"var jsonData = pm.response.json();",
+									"",
+									"// Verifica se o ID do colaborador existe na resposta e o salva na variável de ambiente",
+									"if (jsonData.id) {",
+									"    // pm.environment.set(variável, valor)",
+									"    pm.environment.set(\"id_colaborador\", jsonData.id);",
+									"    console.log(\"ID do colaborador salvo: \" + pm.environment.get(\"id_colaborador\"));",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"João Silva\",\n    \"email\": \"joao.silva@medix.com\",\n    \"senha\": \"senha12345\",\n    \"cpf\": \"99988877766\",\n    \"idUnidadeSaude\": 1,\n    \"descricaoCargo\": \"Enfermeiro\",\n    \"dataAdmissao\": \"2023-01-01\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/colaboradores",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"colaboradores"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PRIVADO",
+			"item": [
+				{
+					"name": "pacientes",
+					"item": [
+						{
+							"name": "listar pacientes",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/pacientes",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"pacientes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "listar pacientes deletados",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/pacientes?status=deletado",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"pacientes"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "deletado"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "buscar paciente por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/pacientes/{{id_paciente}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"pacientes",
+										"{{id_paciente}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "atualizar paciente",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nome\": \"Aninha Opa\",\n  \"email\": \"aninha@exemplo.com\",\n  \"dataNascimento\": \"1995-10-26\",\n  \"tipoSanguineo\": \"O_NEGATIVO\",\n  \"genero\": \"FEMININO\",\n  \"alergias\": [\n    \"Alergia a amendoim\",\n    \"Alergia a lactose\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/pacientes/{{id_paciente}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"pacientes",
+										"{{id_paciente}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "deletar paciente (lógicamente)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/pacientes/{{id_paciente}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"pacientes",
+										"{{id_paciente}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "colaboradores",
+					"item": [
+						{
+							"name": "listar colaboradores",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/colaboradores",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"colaboradores"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "listar colaboradores deletados",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/colaboradores?status=deletado",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"colaboradores"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "deletado"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "buscar colaborador por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/colaboradores/{{id_colaborador}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"colaboradores",
+										"{{id_colaborador}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "atualizar colaborador",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao.silva2@medix.com\",\n  \"descricaoCargo\": \"Gerente\",\n  \"numeroRegistroProfissional\": \"1234567890\",\n  \"dataAdmissao\": \"2023-01-01\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/colaboradores/{{id_colaborador}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"colaboradores",
+										"{{id_colaborador}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "deletar colaborador (lógicamente) Copy",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/colaboradores/{{id_colaborador}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"colaboradores",
+										"{{id_colaborador}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "colaborador cadastra paciente",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nome\": \"Lucas Martins\",\n    \"email\": \"lucas.martins@medix.com\",\n    \"senha\": \"senha12345\",\n    \"cpf\": \"55544433322\",\n    \"dataNascimento\": \"2000-02-10\",\n    \"tipoSanguineo\": \"O_NEGATIVO\",\n    \"genero\": \"MASCULINO\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/colaboradores/1/pacientes",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"colaboradores",
+										"1",
+										"pacientes"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "unidades de saúde",
+					"item": [
+						{
+							"name": "cadastrar unidade de saúde",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Analisa a resposta JSON",
+											"var jsonData = pm.response.json();",
+											"",
+											"// Verifica se o ID da unidade de saúde existe na resposta e o salva na variável de ambiente",
+											"if (jsonData.id) {",
+											"    // pm.environment.set(variável, valor)",
+											"    pm.environment.set(\"id_unidade_saude\", jsonData.id);",
+											"    console.log(\"ID da unidade de saúde salvo: \" + pm.environment.get(\"id_unidade_saude\"));",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nome\": \"Unidade de Saúde Teste\",\n  \"cnpj\": \"99999999000199\",\n  \"endereco\": \"Avenida Brasil, 500\",\n  \"telefone\": \"11987654321\",\n  \"tipoUnidade\": \"Clínica\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/unidades",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"unidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "listar unidades de saúde",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/unidades",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"unidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "listar unidades de saúde deletadas",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/unidades",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"unidades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "buscar unidade de saúde por id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/unidades/{{id_unidade_saude}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"unidades",
+										"{{id_unidade_saude}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "atualizar unidade de saúde",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nome\": \"Hospital Central de Testes\",\n  \"endereco\": \"Rua de Acesso Rápido, 123\",\n  \"telefone\": \"99999999999\",\n  \"tipoUnidade\": \"Hospital\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/unidades/{{id_unidade_saude}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"unidades",
+										"{{id_unidade_saude}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "deletar unidade de saúde",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/unidades/{{id_unidade_saude}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"unidades",
+										"{{id_unidade_saude}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
