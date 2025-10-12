@@ -46,14 +46,14 @@ git clone https://github.com/challengeoracle/sprint-1-java
 ---
 ## Diagramas
 ### Diagrama de Classes
-![Diagrama de Classes](https://media.discordapp.net/attachments/1425081254931337280/1425081292579409950/diagrama-de-classes.drawio.png?ex=68e649e0&is=68e4f860&hm=7cfb9f353fcca4ac7ada440d5b3139c1aff3fb79a66b2f16ee9a7ea213a5ffb1&=&format=webp&quality=lossless&width=657&height=702)
+![Diagrama de Classes](https://imgur.com/bbp1pf5.png)
 
 ### Diagrama Relacional
-![Diagrama Relacional](https://media.discordapp.net/attachments/1425081254931337280/1425081494497398814/image.png?ex=68e64a11&is=68e4f891&hm=e3d50826ee3cfcef945e46cdd5febbd23205b9f2a0f0599723909b83946a7545&=&format=webp&quality=lossless)
+![Diagrama Relacional](https://imgur.com/0dTBUN3.png)
 
 ---
 ## PITCH
-- [Apresentação MEDIX - YouTube](https://www.youtube.com/watch?v=example_video_link)
+- [Apresentação MEDIX - YouTube](https://youtu.be/xYQXVIVLfek)
 
 ---
 
