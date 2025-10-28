@@ -30,6 +30,7 @@ public class SecurityConfig {
                         // Permite acesso público apenas à rota de login
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/avaliacoes/**").permitAll() // Isso aqui vai permitir as requisições do ESP32
 
                         // Apenas COLABORADORES podem criar novos pacientes e colaboradores
                         .requestMatchers(HttpMethod.POST, "/pacientes").hasAuthority("ROLE_COLABORADOR")
