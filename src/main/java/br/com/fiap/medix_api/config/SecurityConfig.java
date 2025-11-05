@@ -27,12 +27,23 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Permite acesso público apenas à rota de login
+                        // Permite acesso público apenas à rota de login (com prefixo )
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        // Permite acesso ao Console H2 (com prefixo )
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/avaliacoes/**").permitAll() // Isso aqui vai permitir as requisições do ESP32
+                        // Permite as requisições do ESP32 (com prefixo )
+                        .requestMatchers("/avaliacoes/**").permitAll()
 
-                        // Apenas COLABORADORES podem criar novos pacientes e colaboradores
+                        // CORREÇÃO: Libera as rotas do Swagger/OpenAPI, incluindo o prefixo
+                        // O Spring Security precisa do prefixo para que o match da URL absoluta funcione.
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs/swagger-config"
+                        ).permitAll()
+
+                        // Apenas COLABORADORES podem criar novos pacientes e colaboradores (com prefixo )
                         .requestMatchers(HttpMethod.POST, "/pacientes").hasAuthority("ROLE_COLABORADOR")
                         .requestMatchers(HttpMethod.POST, "/colaboradores").hasAuthority("ROLE_COLABORADOR")
 

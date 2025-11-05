@@ -25,9 +25,8 @@ public class Avaliacao {
     @Column(name = "id_avaliacao")
     private Long id;
 
-    // --- NOVO: Campo para exclusão lógica ---
     @Column(name = "deleted", nullable = false)
-    private Integer deleted = 0; // Padrão 0 (ativo)
+    private Integer deleted = 0;
 
     @CreationTimestamp
     @Column(name = "dt_registro", updatable = false, nullable = false)
