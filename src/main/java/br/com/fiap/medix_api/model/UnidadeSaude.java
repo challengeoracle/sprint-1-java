@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UnidadeSaude {
+public class UnidadeSaude extends RepresentationModel<UnidadeSaude> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

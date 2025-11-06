@@ -18,6 +18,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/unidades")
 @AllArgsConstructor
@@ -29,12 +32,10 @@ public class UnidadeSaudeController {
 
     private final UnidadeSaudeService unidadeSaudeService;
 
+    // Cadastrar unidade de saúde
     @Operation(
             summary = "Cadastrar unidade de saúde",
-            description = """
-            Cria uma nova unidade de saúde no sistema com base nos dados informados.
-            Retorna o objeto criado com o respectivo ID.
-            """,
+            description = "Cria uma nova unidade de saúde no sistema.",
             responses = {
                     @ApiResponse(
                             responseCode = "201",
@@ -48,6 +49,10 @@ public class UnidadeSaudeController {
                             responseCode = "400",
                             description = "Dados inválidos enviados na requisição.",
                             content = @Content
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "CNPJ já cadastrado."
                     )
             }
     )
@@ -57,16 +62,16 @@ public class UnidadeSaudeController {
             UriComponentsBuilder uriBuilder
     ) {
         UnidadeSaude unidade = unidadeSaudeService.criar(unidadeDto);
+        unidade.add(linkTo(methodOn(UnidadeSaudeController.class).buscar(unidade.getId())).withSelfRel());
+
         URI uri = uriBuilder.path("/unidades/{id}").buildAndExpand(unidade.getId()).toUri();
         return ResponseEntity.created(uri).body(unidade);
     }
 
+    // Listar unidades de saúde
     @Operation(
             summary = "Listar unidades de saúde",
-            description = """
-            Retorna todas as unidades de saúde cadastradas no sistema.
-            É possível filtrar opcionalmente pelo parâmetro `status` (ex: ativo ou inativo).
-            """,
+            description = "Retorna todas as unidades de saúde ativas. Use `?status=deletado` para listar inativas.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -81,12 +86,14 @@ public class UnidadeSaudeController {
     @GetMapping
     public ResponseEntity<List<UnidadeSaude>> listar(@RequestParam(required = false) String status) {
         List<UnidadeSaude> unidades = unidadeSaudeService.listar(status);
+        unidades.forEach(u -> u.add(linkTo(methodOn(UnidadeSaudeController.class).buscar(u.getId())).withSelfRel()));
         return ResponseEntity.ok(unidades);
     }
 
+    // Buscar unidade de saúde por ID
     @Operation(
             summary = "Buscar unidade de saúde por ID",
-            description = "Retorna os dados de uma unidade de saúde específica com base no seu ID.",
+            description = "Retorna os dados de uma unidade de saúde específica.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -106,15 +113,18 @@ public class UnidadeSaudeController {
     @GetMapping("/{id}")
     public ResponseEntity<UnidadeSaude> buscar(@PathVariable Long id) {
         UnidadeSaude unidade = unidadeSaudeService.buscarPorId(id);
+        unidade.add(linkTo(methodOn(UnidadeSaudeController.class).buscar(id)).withSelfRel());
+        unidade.add(linkTo(methodOn(UnidadeSaudeController.class).atualizar(id, null)).withRel("atualizar"));
+        unidade.add(linkTo(methodOn(UnidadeSaudeController.class).excluir(id)).withRel("excluir"));
+        unidade.add(linkTo(methodOn(UnidadeSaudeController.class).listar(null)).withRel("todas"));
+        unidade.add(linkTo(methodOn(SalaController.class).listarPorUnidade(id)).withRel("salas"));
         return ResponseEntity.ok(unidade);
     }
 
+    // Atualizar unidade de saúde
     @Operation(
             summary = "Atualizar unidade de saúde",
-            description = """
-            Atualiza as informações de uma unidade de saúde existente com base no ID informado.
-            Todos os campos enviados substituirão os valores atuais.
-            """,
+            description = "Atualiza as informações de uma unidade de saúde existente.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -137,15 +147,14 @@ public class UnidadeSaudeController {
             @RequestBody @Valid AtualizarUnidadeSaudeDto unidadeDto
     ) {
         UnidadeSaude unidade = unidadeSaudeService.atualizar(id, unidadeDto);
+        unidade.add(linkTo(methodOn(UnidadeSaudeController.class).buscar(id)).withSelfRel());
         return ResponseEntity.ok(unidade);
     }
 
+    // Excluir unidade de saúde (lógico)
     @Operation(
             summary = "Excluir unidade de saúde (lógico)",
-            description = """
-            Realiza a exclusão lógica de uma unidade de saúde, mantendo o registro no banco de dados
-            e marcando-o como inativo.
-            """,
+            description = "Realiza a exclusão lógica, marcando a unidade como inativa.",
             responses = {
                     @ApiResponse(
                             responseCode = "204",

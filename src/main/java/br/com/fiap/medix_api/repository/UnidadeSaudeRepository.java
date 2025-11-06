@@ -23,4 +23,8 @@ public interface UnidadeSaudeRepository extends JpaRepository<UnidadeSaude, Long
     // Busca uma unidade por CNPJ, para validar unicidade
     @Query("SELECT u FROM UnidadeSaude u WHERE u.cnpj = :cnpj AND u.deleted = 0")
     Optional<UnidadeSaude> findByCnpjAndDeletedIs(String cnpj);
+
+    // Escolhe a unidade que atende essa especialidade
+    @Query("SELECT DISTINCT u FROM Colaborador c JOIN c.unidadeSaude u WHERE c.especialidade.id = :especialidadeId AND c.deleted = 0 AND u.deleted = 0")
+    List<UnidadeSaude> findByEspecialidadeId(Long especialidadeId);
 }

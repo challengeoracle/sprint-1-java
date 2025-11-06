@@ -18,23 +18,24 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/avaliacoes")
 @AllArgsConstructor
 @Tag(
         name = "Avaliações",
-        description = "Endpoints responsáveis pelo recebimento, listagem e gerenciamento das avaliações enviadas pelos totens ou usuários."
+        description = "Endpoints relacionados ao recebimento, listagem e gerenciamento de avaliações (público)."
 )
 public class AvaliacaoController {
 
     private final AvaliacaoService avaliacaoService;
 
+    // Registrar nova avaliação (uso: IoT/Totem)
     @Operation(
             summary = "Registrar nova avaliação",
-            description = """
-            Recebe uma nova avaliação vinda de um totem ou interface do usuário.
-            Retorna o objeto criado com o respectivo ID e dados persistidos.
-            """,
+            description = "Recebe uma nova avaliação vinda de um totem ou interface do usuário.",
             responses = {
                     @ApiResponse(
                             responseCode = "201",
@@ -57,16 +58,16 @@ public class AvaliacaoController {
             UriComponentsBuilder uriBuilder
     ) {
         Avaliacao novaAvaliacao = avaliacaoService.registrarAvaliacao(dto);
+        novaAvaliacao.add(linkTo(methodOn(AvaliacaoController.class).buscar(novaAvaliacao.getId())).withSelfRel());
+
         URI uri = uriBuilder.path("/avaliacoes/{id}").buildAndExpand(novaAvaliacao.getId()).toUri();
         return ResponseEntity.created(uri).body(novaAvaliacao);
     }
 
+    // Listar avaliações
     @Operation(
             summary = "Listar avaliações",
-            description = """
-            Retorna todas as avaliações registradas.
-            É possível filtrar por status informando o parâmetro opcional `status`.
-            """,
+            description = "Retorna todas as avaliações registradas. É possível filtrar por status (ativo ou deletado).",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -81,9 +82,11 @@ public class AvaliacaoController {
     @GetMapping
     public ResponseEntity<List<Avaliacao>> listar(@RequestParam(required = false) String status) {
         List<Avaliacao> avaliacoes = avaliacaoService.listar(status);
+        avaliacoes.forEach(av -> av.add(linkTo(methodOn(AvaliacaoController.class).buscar(av.getId())).withSelfRel()));
         return ResponseEntity.ok(avaliacoes);
     }
 
+    // Buscar avaliação por ID
     @Operation(
             summary = "Buscar avaliação por ID",
             description = "Retorna uma avaliação específica com base no ID informado.",
@@ -106,14 +109,16 @@ public class AvaliacaoController {
     @GetMapping("/{id}")
     public ResponseEntity<Avaliacao> buscar(@PathVariable Long id) {
         Avaliacao avaliacao = avaliacaoService.buscarPorId(id);
+        avaliacao.add(linkTo(methodOn(AvaliacaoController.class).buscar(id)).withSelfRel());
+        avaliacao.add(linkTo(methodOn(AvaliacaoController.class).excluir(id)).withRel("excluir"));
+        avaliacao.add(linkTo(methodOn(AvaliacaoController.class).listar(null)).withRel("todas"));
         return ResponseEntity.ok(avaliacao);
     }
 
+    // Excluir avaliação (lógica)
     @Operation(
             summary = "Excluir avaliação (lógica)",
-            description = """
-            Realiza a exclusão lógica de uma avaliação, mantendo o registro no banco mas marcando como inativo.
-            """,
+            description = "Realiza a exclusão lógica de uma avaliação, mantendo o registro no banco, mas marcando como inativo.",
             responses = {
                     @ApiResponse(
                             responseCode = "204",

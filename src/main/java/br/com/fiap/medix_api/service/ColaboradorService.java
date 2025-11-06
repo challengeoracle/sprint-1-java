@@ -3,10 +3,11 @@ package br.com.fiap.medix_api.service;
 import br.com.fiap.medix_api.dto.request.AtualizarColaboradorDto;
 import br.com.fiap.medix_api.dto.request.CadastrarColaboradorDto;
 import br.com.fiap.medix_api.model.Colaborador;
+import br.com.fiap.medix_api.model.Especialidade; // IMPORTADO
 import br.com.fiap.medix_api.model.UnidadeSaude;
 import br.com.fiap.medix_api.enums.UsuarioRole;
 import br.com.fiap.medix_api.repository.ColaboradorRepository;
-import br.com.fiap.medix_api.repository.UnidadeSaudeRepository;
+import br.com.fiap.medix_api.repository.EspecialidadeRepository; // IMPORTADO
 import br.com.fiap.medix_api.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -23,20 +24,25 @@ import java.util.List;
 public class ColaboradorService {
 
     private ColaboradorRepository colaboradorRepository;
-    private UnidadeSaudeRepository unidadeSaudeRepository;
     private UsuarioRepository usuarioRepository;
     private PasswordEncoder passwordEncoder;
+    private UnidadeSaudeService unidadeSaudeService; // INJETADO
+    private EspecialidadeRepository especialidadeRepository; // INJETADO
 
     @Transactional
     public Colaborador criar(CadastrarColaboradorDto cadastroDto) {
-        // Valida se o CPF e e-mail do novo colaborador já existem
         validarNovoColaborador(cadastroDto);
 
-        // Busca a unidade de saúde, ou lança uma exceção
-        UnidadeSaude unidade = unidadeSaudeRepository.findById(cadastroDto.getIdUnidadeSaude())
-                .orElseThrow(() -> new EntityNotFoundException("Unidade de Saúde não encontrada!"));
+        // ATUALIZADO: Reutiliza o service que já valida se a unidade está ativa
+        UnidadeSaude unidade = unidadeSaudeService.buscarPorId(cadastroDto.getIdUnidadeSaude());
 
-        // Converte o DTO para a entidade e salva no banco
+        // ATUALIZADO: Busca a especialidade, se ela for informada
+        Especialidade especialidade = null;
+        if (cadastroDto.getIdEspecialidade() != null) {
+            especialidade = especialidadeRepository.findById(cadastroDto.getIdEspecialidade())
+                    .orElseThrow(() -> new EntityNotFoundException("Especialidade não encontrada!"));
+        }
+
         Colaborador colaborador = Colaborador.builder()
                 .nome(cadastroDto.getNome())
                 .email(cadastroDto.getEmail())
@@ -44,6 +50,7 @@ public class ColaboradorService {
                 .cpf(cadastroDto.getCpf())
                 .tipoUsuario(UsuarioRole.COLABORADOR)
                 .unidadeSaude(unidade)
+                .especialidade(especialidade) // ATUALIZADO
                 .descricaoCargo(cadastroDto.getDescricaoCargo())
                 .numeroRegistroProfissional(cadastroDto.getNumeroRegistroProfissional())
                 .dataAdmissao(cadastroDto.getDataAdmissao())
@@ -53,7 +60,6 @@ public class ColaboradorService {
     }
 
     public List<Colaborador> listar(String status) {
-        // Retorna colaboradores ativos ou deletados com base no parâmetro
         if ("deletado".equalsIgnoreCase(status)) {
             return colaboradorRepository.findAllByDeletedIsOne();
         }
@@ -61,21 +67,18 @@ public class ColaboradorService {
     }
 
     public Colaborador buscarPorId(Long id) {
-        // Busca um colaborador ativo por ID, ou lança uma exceção
         return colaboradorRepository.findByIdAndDeletedIs(id, 0)
                 .orElseThrow(() -> new EntityNotFoundException("Colaborador não encontrado ou inativo com o ID: " + id));
     }
 
     @Transactional
     public Colaborador atualizar(Long id, AtualizarColaboradorDto atualizacaoDto) {
-        // Busca o colaborador, atualiza os campos e salva
         Colaborador colaborador = this.buscarPorId(id);
 
         if (atualizacaoDto.getNome() != null) {
             colaborador.setNome(atualizacaoDto.getNome());
         }
         if (atualizacaoDto.getEmail() != null) {
-            // Verifica se o novo e-mail já existe
             if (usuarioRepository.findByEmailAndDeletedIs(atualizacaoDto.getEmail()).isPresent()) {
                 throw new DataIntegrityViolationException("Já existe um usuário com este e-mail.");
             }
@@ -88,11 +91,17 @@ public class ColaboradorService {
             colaborador.setNumeroRegistroProfissional(atualizacaoDto.getNumeroRegistroProfissional());
         }
         if (atualizacaoDto.getDataAdmissao() != null) {
-            // Valida a data de admissão
             if (atualizacaoDto.getDataAdmissao().isAfter(LocalDate.now())) {
                 throw new IllegalArgumentException("A data de admissão não pode ser no futuro.");
             }
             colaborador.setDataAdmissao(atualizacaoDto.getDataAdmissao());
+        }
+
+        // ATUALIZADO: Lógica para atualizar especialidade (opcional)
+        if (atualizacaoDto.getIdEspecialidade() != null) {
+            Especialidade especialidade = especialidadeRepository.findById(atualizacaoDto.getIdEspecialidade())
+                    .orElseThrow(() -> new EntityNotFoundException("Especialidade não encontrada!"));
+            colaborador.setEspecialidade(especialidade);
         }
 
         return colaboradorRepository.save(colaborador);
@@ -100,14 +109,12 @@ public class ColaboradorService {
 
     @Transactional
     public void excluir(Long id) {
-        // Realiza a exclusão lógica
         Colaborador colaborador = this.buscarPorId(id);
         colaborador.setDeleted(1);
         colaboradorRepository.save(colaborador);
     }
 
     private void validarNovoColaborador(CadastrarColaboradorDto cadastroDto) {
-        // Garante que o CPF e e-mail não existam para usuários ativos
         if (usuarioRepository.findByCpfAndDeletedIs(cadastroDto.getCpf()).isPresent()) {
             throw new DataIntegrityViolationException("Já existe um usuário com este CPF.");
         }

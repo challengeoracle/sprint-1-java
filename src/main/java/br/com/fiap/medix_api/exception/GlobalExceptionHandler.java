@@ -17,7 +17,6 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Retorna 404 Not Found quando uma entidade não é encontrada
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErroPadraoDto> tratarErro404(EntityNotFoundException ex, HttpServletRequest request) {
         ErroPadraoDto erro = new ErroPadraoDto(
@@ -30,7 +29,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
     }
 
-    // Retorna 400 Bad Request para erros de validação de DTO
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ErroValidacaoDto>> tratarErro400(MethodArgumentNotValidException ex) {
         var erros = ex.getFieldErrors();
@@ -40,13 +38,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(listaErros);
     }
 
-    // Retorna 409 Conflict para erros de unicidade de dados no banco
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErroPadraoDto> tratarErroDeIntegridade(DataIntegrityViolationException ex, HttpServletRequest request) {
         ErroPadraoDto erro = new ErroPadraoDto(
                 Instant.now(),
                 HttpStatus.CONFLICT.value(),
                 "Conflito de Dados",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
+    }
+
+    @ExceptionHandler({IllegalStateException.class, IllegalArgumentException.class})
+    public ResponseEntity<ErroPadraoDto> tratarErroDeRegraDeNegocio(RuntimeException ex, HttpServletRequest request) {
+        ErroPadraoDto erro = new ErroPadraoDto(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(), // 409 Conflict é adequado para choque de horários
+                "Regra de Negócio",
                 ex.getMessage(),
                 request.getRequestURI()
         );

@@ -8,6 +8,7 @@ import br.com.fiap.medix_api.dto.response.RespostaPacienteDto;
 import br.com.fiap.medix_api.model.Colaborador;
 import br.com.fiap.medix_api.model.Paciente;
 import br.com.fiap.medix_api.service.ColaboradorService;
+import br.com.fiap.medix_api.service.ModelMapper;
 import br.com.fiap.medix_api.service.PacienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,6 +26,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/colaboradores")
 @AllArgsConstructor
@@ -36,27 +40,16 @@ public class ColaboradorController {
 
     private final ColaboradorService colaboradorService;
     private final PacienteService pacienteService;
+    private final ModelMapper modelMapper;
 
+    // Criar novo colaborador
     @Operation(
             summary = "Criar novo colaborador",
-            description = """
-            Cadastra um novo colaborador no sistema, vinculando seus dados profissionais e pessoais.
-            Retorna o colaborador criado com seu respectivo ID.
-            """,
+            description = "Cadastra um novo colaborador (médico, enfermeiro, etc.) e o vincula a uma unidade/especialidade.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Colaborador criado com sucesso.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = RespostaColaboradorDto.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Dados inválidos enviados na requisição.",
-                            content = @Content
-                    )
+                    @ApiResponse(responseCode = "201", description = "Colaborador criado com sucesso.", content = @Content(schema = @Schema(implementation = RespostaColaboradorDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos enviados na requisição."),
+                    @ApiResponse(responseCode = "409", description = "CPF ou E-mail já existentes.")
             }
     )
     @PostMapping
@@ -66,82 +59,56 @@ public class ColaboradorController {
     ) {
         Colaborador colaborador = colaboradorService.criar(colaboradorDto);
         URI uri = uriBuilder.path("/colaboradores/{id}").buildAndExpand(colaborador.getId()).toUri();
-        RespostaColaboradorDto responseDto = mapToRespostaColaboradorDto(colaborador);
+        RespostaColaboradorDto responseDto = modelMapper.mapColaboradorToDto(colaborador);
+        responseDto.add(linkTo(methodOn(ColaboradorController.class).buscar(colaborador.getId())).withSelfRel());
         return ResponseEntity.created(uri).body(responseDto);
     }
 
+    // Listar colaboradores
     @Operation(
             summary = "Listar colaboradores",
-            description = """
-            Retorna uma lista de colaboradores cadastrados.
-            É possível filtrar pelo parâmetro opcional `status` (ex: ativo ou inativo).
-            """,
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Lista de colaboradores retornada com sucesso.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = RespostaColaboradorDto.class)
-                            )
-                    )
-            }
+            description = "Retorna uma lista de colaboradores ativos. Use `?status=deletado` para listar inativos.",
+            responses = @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RespostaColaboradorDto.class)))
     )
     @GetMapping
     public ResponseEntity<List<RespostaColaboradorDto>> listar(@RequestParam(required = false) String status) {
         List<Colaborador> colaboradores = colaboradorService.listar(status);
         List<RespostaColaboradorDto> responseDtos = colaboradores.stream()
-                .map(this::mapToRespostaColaboradorDto)
+                .map(modelMapper::mapColaboradorToDto)
                 .collect(Collectors.toList());
+
+        responseDtos.forEach(dto -> dto.add(linkTo(methodOn(ColaboradorController.class).buscar(dto.getId())).withSelfRel()));
+
         return ResponseEntity.ok(responseDtos);
     }
 
+    // Buscar colaborador por ID
     @Operation(
             summary = "Buscar colaborador por ID",
-            description = "Retorna os dados de um colaborador específico com base em seu ID.",
+            description = "Retorna os dados de um colaborador específico.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Colaborador encontrado.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = RespostaColaboradorDto.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Colaborador não encontrado.",
-                            content = @Content
-                    )
+                    @ApiResponse(responseCode = "200", description = "Colaborador encontrado.", content = @Content(schema = @Schema(implementation = RespostaColaboradorDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Colaborador não encontrado.")
             }
     )
     @GetMapping("/{id}")
     public ResponseEntity<RespostaColaboradorDto> buscar(@PathVariable Long id) {
         Colaborador colaborador = colaboradorService.buscarPorId(id);
-        RespostaColaboradorDto responseDto = mapToRespostaColaboradorDto(colaborador);
+        RespostaColaboradorDto responseDto = modelMapper.mapColaboradorToDto(colaborador);
+        responseDto.add(linkTo(methodOn(ColaboradorController.class).buscar(id)).withSelfRel());
+        responseDto.add(linkTo(methodOn(ColaboradorController.class).atualizar(id, null)).withRel("atualizar"));
+        responseDto.add(linkTo(methodOn(ColaboradorController.class).excluir(id)).withRel("excluir"));
         return ResponseEntity.ok(responseDto);
     }
 
+    // Atualizar dados de um colaborador
     @Operation(
             summary = "Atualizar dados de um colaborador",
-            description = """
-            Atualiza as informações de um colaborador existente.
-            Todos os campos enviados substituirão os valores atuais.
-            """,
+            description = "Atualiza as informaçõs de um colaborador existente. Apenas os campos enviados são modificados.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Colaborador atualizado com sucesso.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = RespostaColaboradorDto.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Colaborador não encontrado.",
-                            content = @Content
-                    )
+                    @ApiResponse(responseCode = "200", description = "Colaborador atualizado com sucesso.", content = @Content(schema = @Schema(implementation = RespostaColaboradorDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Colaborador não encontrado."),
+                    @ApiResponse(responseCode = "409", description = "E-mail já existente.")
             }
     )
     @PutMapping("/{id}")
@@ -150,25 +117,18 @@ public class ColaboradorController {
             @RequestBody @Valid AtualizarColaboradorDto colaboradorDto
     ) {
         Colaborador colaborador = colaboradorService.atualizar(id, colaboradorDto);
-        RespostaColaboradorDto responseDto = mapToRespostaColaboradorDto(colaborador);
+        RespostaColaboradorDto responseDto = modelMapper.mapColaboradorToDto(colaborador);
+        responseDto.add(linkTo(methodOn(ColaboradorController.class).buscar(id)).withSelfRel());
         return ResponseEntity.ok(responseDto);
     }
 
+    // Excluir colaborador (lógico)
     @Operation(
             summary = "Excluir colaborador (lógico)",
-            description = """
-            Realiza a exclusão lógica de um colaborador, mantendo o registro no banco de dados, mas marcando-o como inativo.
-            """,
+            description = "Realiza a exclusão lógica, marcando o colaborador como inativo.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "Colaborador excluído com sucesso."
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Colaborador não encontrado.",
-                            content = @Content
-                    )
+                    @ApiResponse(responseCode = "204", description = "Colaborador excluído com sucesso."),
+                    @ApiResponse(responseCode = "404", description = "Colaborador não encontrado.")
             }
     )
     @DeleteMapping("/{id}")
@@ -177,26 +137,13 @@ public class ColaboradorController {
         return ResponseEntity.noContent().build();
     }
 
+    // Registrar paciente por colaborador
     @Operation(
             summary = "Registrar paciente por colaborador",
-            description = """
-            Permite que um colaborador cadastre um novo paciente sob sua responsabilidade.
-            Retorna o paciente criado e o respectivo ID.
-            """,
+            description = "Permite que um colaborador cadastre um novo paciente no sistema.",
             responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Paciente registrado com sucesso.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = RespostaPacienteDto.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Colaborador não encontrado para o ID informado.",
-                            content = @Content
-                    )
+                    @ApiResponse(responseCode = "201", description = "Paciente registrado com sucesso.", content = @Content(schema = @Schema(implementation = RespostaPacienteDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Colaborador não encontrado para o ID informado.")
             }
     )
     @PostMapping("/{idColaborador}/pacientes")
@@ -208,36 +155,8 @@ public class ColaboradorController {
     ) {
         Paciente paciente = pacienteService.criarPorColaborador(idColaborador, pacienteDto);
         URI uri = uriBuilder.path("/pacientes/{id}").buildAndExpand(paciente.getId()).toUri();
-        RespostaPacienteDto responseDto = mapToRespostaPacienteDto(paciente);
+        RespostaPacienteDto responseDto = modelMapper.mapPacienteToDto(paciente);
+        responseDto.add(linkTo(methodOn(PacienteController.class).buscar(paciente.getId())).withSelfRel());
         return ResponseEntity.created(uri).body(responseDto);
-    }
-
-    // --- Métodos auxiliares (mapeamento para DTOs) ---
-    private RespostaPacienteDto mapToRespostaPacienteDto(Paciente paciente) {
-        RespostaPacienteDto dto = new RespostaPacienteDto();
-        dto.setId(paciente.getId());
-        dto.setNome(paciente.getNome());
-        dto.setEmail(paciente.getEmail());
-        dto.setCpf(paciente.getCpf());
-        dto.setTipoUsuario(paciente.getTipoUsuario());
-        dto.setDataNascimento(paciente.getDataNascimento());
-        dto.setTipoSanguineo(paciente.getTipoSanguineo());
-        dto.setGenero(paciente.getGenero());
-        dto.setAlergias(paciente.getAlergias());
-        return dto;
-    }
-
-    private RespostaColaboradorDto mapToRespostaColaboradorDto(Colaborador colaborador) {
-        RespostaColaboradorDto dto = new RespostaColaboradorDto();
-        dto.setId(colaborador.getId());
-        dto.setNome(colaborador.getNome());
-        dto.setEmail(colaborador.getEmail());
-        dto.setCpf(colaborador.getCpf());
-        dto.setTipoUsuario(colaborador.getTipoUsuario());
-        dto.setUnidadeSaude(colaborador.getUnidadeSaude());
-        dto.setDescricaoCargo(colaborador.getDescricaoCargo());
-        dto.setNumeroRegistroProfissional(colaborador.getNumeroRegistroProfissional());
-        dto.setDataAdmissao(colaborador.getDataAdmissao());
-        return dto;
     }
 }

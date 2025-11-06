@@ -28,12 +28,10 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
+    // Autenticar usuário e gerar token JWT
     @Operation(
             summary = "Autenticar usuário e gerar token JWT",
-            description = """
-            Realiza o login de um usuário existente com e-mail e senha válidos.
-            Retorna um token JWT que deve ser usado para acessar as demais rotas protegidas.
-            """,
+            description = "Realiza o login de um usuário existente com e-mail e senha válidos. Retorna um token JWT que deve ser usado para acessar as demais rotas protegidas.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",

@@ -23,6 +23,8 @@ public class CadastrarColaboradorDto extends UsuarioDto {
     @NotNull(message = "O ID da unidade de saúde não pode ser nulo.")
     private Long idUnidadeSaude;
 
+    private Long idEspecialidade;
+
     @NotBlank(message = "O cargo não pode ser vazio.")
     @Size(max = 100, message = "O cargo deve ter no máximo 100 caracteres.")
     private String descricaoCargo;

@@ -22,6 +22,10 @@ public class Colaborador extends Usuario {
     @JoinColumn(name = "id_unidade_saude", nullable = false)
     private UnidadeSaude unidadeSaude;
 
+    @ManyToOne
+    @JoinColumn(name = "id_especialidade") // Pode ser nulo para recepcionistas, etc.
+    private Especialidade especialidade;
+
     @NotNull(message = "A descrição do cargo não pode ser nula.")
     @Size(max = 100, message = "A descrição do cargo não pode exceder 100 caracteres.")
     @Column(name = "ds_cargo", nullable = false, length = 100)

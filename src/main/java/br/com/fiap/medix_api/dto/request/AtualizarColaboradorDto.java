@@ -18,6 +18,9 @@ public class AtualizarColaboradorDto {
     @Email(message = "Formato de e-mail inválido.")
     private String email;
 
+    // ADICIONADO
+    private Long idEspecialidade;
+
     @Size(max = 100, message = "O cargo deve ter no máximo 100 caracteres.")
     private String descricaoCargo;
 
