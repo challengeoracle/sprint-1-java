@@ -57,6 +57,8 @@ public class SecurityConfig {
                         // CRUD de Colaboradores (Total)
                         .requestMatchers("/colaboradores/**").hasRole("COLABORADOR")
 
+                        .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated()
+
                         // CRUD de Pacientes (Total)
                         .requestMatchers("/pacientes/**").hasRole("COLABORADOR")
 
