@@ -28,8 +28,8 @@ spring:
     datasource:
         # Seus dados de conexão
         url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
-        username:
-        password:
+        username: rm559728
+        password: 250306
         driver-class-name: oracle.jdbc.driver.OracleDriver
 
     devtools:
