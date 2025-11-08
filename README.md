@@ -9,6 +9,19 @@ Medix é uma plataforma que visa criar um ecossistema integrado para conectar de
 * **Mateus da Silveira Lima (RM 559728)** - Responsável pelas matérias de Banco de Dados, Java e Mobile
 
 ---
+## ⚠ ANTES DE COMPILAR O PROJETO
+Verifique se o arquivo `application.yml` tem as seguintes credenciais datasource:
+```yml
+    datasource:
+        # Dados de conexão
+        url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
+        username: rm559728
+        password: 250306
+        driver-class-name: oracle.jdbc.driver.OracleDriver
+```
+Utilize as minhas credenciais pois as tabelas já estão criadas e populadas! 
+
+---
 ## Problema e Solução
 O problema principal é a lacuna de conexão e informação no ecossistema de saúde, que afeta tanto pacientes quanto instituições. Para os pacientes, a busca por atendimento é ineficiente e leva a peregrinações desnecessárias, resultando em superlotação de unidades e atrasos no tratamento. Para hospitais e clínicas, a falta de ferramentas inteligentes para gestão e previsão de demanda causa altos custos e sobrecarga das equipes.
 
