@@ -49,7 +49,7 @@ git clone https://github.com/challengeoracle/sprint-1-java
 ![Diagrama de Classes](https://imgur.com/bbp1pf5.png)
 
 ### Diagrama Relacional
-![Diagrama Relacional](https://imgur.com/0dTBUN3.png)
+![Diagrama Relacional](https://imgur.com/hbAQjaA.png)
 
 ---
 ## PITCH
