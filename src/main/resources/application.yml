@@ -10,14 +10,14 @@ spring:
     sql:
         init:
             # Não executa scripts de inicialização (as tabelas já existem)
-            mode: always
+            mode: never
 
     jpa:
         defer-datasource-initialization: true
         database-platform: org.hibernate.dialect.OracleDialect
         hibernate:
             # Apenas valida o schema — não cria nem apaga tabelas
-            ddl-auto: create-drop
+            ddl-auto: none
         show-sql: false
         properties:
             hibernate:
